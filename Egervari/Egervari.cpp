@@ -3,6 +3,7 @@
 #include <climits>
 using namespace std;
 
+// function to output a matrix to the console
 void print(const vector<vector<int>>& mat) {
 	for (int i = 0; i < mat.size(); i++) {
 		for (int j = 0; j < mat[i].size(); j++) {
@@ -12,6 +13,7 @@ void print(const vector<vector<int>>& mat) {
 	}
 }
 
+// function for matrix transformation
 vector<vector<int>> dvoi(const vector<vector<int>>& mat) {
 	int max = 0;
 	vector<vector<int>> matrix = mat;
@@ -30,15 +32,14 @@ vector<vector<int>> dvoi(const vector<vector<int>>& mat) {
 	return matrix;
 }
 
+// function to transform a matrix by rows and columns
 vector<vector<int>> str_stl(const vector<vector<int>>& mat) {
 	vector<vector<int>> matrix = mat;
-	int sum = 0;
 	for (int i = 0; i < matrix.size(); i++) {
 		int min = INT_MAX;
 		for (int j = 0; j < matrix[i].size(); j++) {
 			if (matrix[i][j] < min) min = matrix[i][j];
 		}
-		sum += min;
 		for (int j = 0; j < matrix[i].size(); j++) {
 			matrix[i][j] -= min;
 		}
@@ -49,16 +50,15 @@ vector<vector<int>> str_stl(const vector<vector<int>>& mat) {
 		for (int j = 0; j < matrix.size(); j++) {
 			if (matrix[j][i] < min) min = matrix[j][i];
 		}
-		sum += min;
 		for (int j = 0; j < matrix.size(); j++) {
 			matrix[j][i] -= min;
 		}
 	}
 
-	cout << "\nSum of min elements: " << sum << endl;
 	return matrix;
 }
 
+// function to convert a matrix into a matching matrix
 vector<vector<int>> pairs(const vector<vector<int>>& mat) {
 	vector<vector<int>> matrix = mat;
 	for (int i = 0; i < matrix.size(); i++) {
@@ -67,14 +67,29 @@ vector<vector<int>> pairs(const vector<vector<int>>& mat) {
 			else matrix[i][j] = 0;
 		}
 	}
+
+	for (int i = 0; i < matrix.size(); i++) {
+		for (int j = 0; j < matrix[i].size(); j++) {
+			if (matrix[i][j] == 1) {
+				for (int k = i + 1; k < matrix.size(); k++) {
+					if (matrix[k][j] == 1) matrix[k][j] = -1;
+				}
+				for (int k = j + 1; k < matrix[0].size(); k++) {
+					if (matrix[i][k] == 1) matrix[i][k] = -1;
+				}
+			}
+		}
+	}
+
 	return matrix;
 }
 
-bool findAssignment(int person, vector<int>& job, const vector<vector<int>>& mat, vector<int>& assigned_jobs, vector<bool>& assigned) {
+// matching function
+bool find_assignment(int person, vector<int>& job, const vector<vector<int>>& mat, vector<int>& assigned_jobs, vector<bool>& assigned) {
 	for (int j = 0; j < job.size(); j++) {
 		if (mat[person][j] == 0 && !assigned[j]) {
 			assigned[j] = true;
-			if (assigned_jobs[j] == -1 || findAssignment(assigned_jobs[j], job, mat, assigned_jobs, assigned)) {
+			if (assigned_jobs[j] == -1 || find_assignment(assigned_jobs[j], job, mat, assigned_jobs, assigned)) {
 				assigned_jobs[j] = person;
 				return true;
 			}
@@ -83,7 +98,8 @@ bool findAssignment(int person, vector<int>& job, const vector<vector<int>>& mat
 	return false;
 }
 
-void hungarianAlgorithm(const vector<vector<int>>& mat) {
+// egervari algorithm
+void eger_algorithm(const vector<vector<int>>& mat) {
 	int m = mat.size();
 	int n = mat[0].size();
 
@@ -93,13 +109,12 @@ void hungarianAlgorithm(const vector<vector<int>>& mat) {
 
 	for (int person = 0; person < m; person++) {
 		vector<bool> assigned(n, false);
-		findAssignment(person, job, mat, assigned_jobs, assigned);
+		find_assignment(person, job, mat, assigned_jobs, assigned);
 	}
 
-	cout << "Assignments:\n";
 	for (int j = 0; j < n; j++) {
 		if (assigned_jobs[j] != -1) {
-			cout << "Person " << assigned_jobs[j] + 1 << " is assigned to Job " << j + 1 << endl;
+			cout << "Person " << assigned_jobs[j] + 1 << " is matched to job " << j + 1 << endl;
 		}
 	}
 }
@@ -121,16 +136,15 @@ int main() {
 	}
 
 	vector <vector<int>> B = dvoi(A);
-	cout << "\nMatrix B:\n";
+	cout << "\nMatrix:\n";
 	print(B);
 	B = str_stl(B);
-	cout << "\nMatrix B (update) :\n";
+	cout << "\nMatrix:\n";
 	print(B);
 	vector <vector<int>> C = pairs(B);
 	cout << "\nMatrix C:\n";
 	print(C);
 	cout << "\n\n\n";
-	hungarianAlgorithm(B);
+	eger_algorithm(C);
 	return 0;
 }
-
